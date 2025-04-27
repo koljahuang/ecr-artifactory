@@ -1,0 +1,9 @@
+
+# Ignore dynaconf secret files
+.secrets.*
+**/*.tgz
+*.pyc
+*.venv
+*.gz
+*.DS_Store
+**/__pycache__/

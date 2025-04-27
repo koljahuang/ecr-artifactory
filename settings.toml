@@ -1,0 +1,4 @@
+[development]
+AWS_ACCOUNT = 'xxx'
+AWS_REGION = 'xxx'
+AWS_PROFILE = 'xxx'
