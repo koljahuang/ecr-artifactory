@@ -3,6 +3,8 @@ import subprocess
 
 import tldextract
 from dynaconf import settings
+from urllib.parse import urlparse
+
 
 logger = logging.getLogger(__name__)
 
@@ -10,6 +12,12 @@ project_root_dir = settings['project_root_dir']
 
 
 def add_helm_repo(repository_url):
+    parsed = urlparse(repository_url)
+    host = parsed.netloc
+    if host == 'ghcr.io':
+        logger.info("{repository_url} is a GitHub Container Registry URL.")
+        return
+
     subdomain = tldextract.extract(repository_url).subdomain
     helm_repo_name = subdomain
 
@@ -28,8 +36,14 @@ def add_helm_repo(repository_url):
 
 
 def pull_chart(chart_name, repository_url, chart_version, cwd):
-    subdomain = tldextract.extract(repository_url).subdomain
-    helm_repo_name = subdomain
+    parsed = urlparse(repository_url)
+    host = parsed.netloc
+    if host == 'ghcr.io':
+        helm_repo_name = repository_url
+    else:
+        subdomain = tldextract.extract(repository_url).subdomain
+        helm_repo_name = subdomain
+
     helm_command = [
         "helm",
         "pull",
@@ -37,6 +51,8 @@ def pull_chart(chart_name, repository_url, chart_version, cwd):
         "--version",
         chart_version,
     ]
+
+    print(helm_command)
 
     try:
         subprocess.run(helm_command, check=True, cwd=cwd)
